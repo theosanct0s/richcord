@@ -1,0 +1,23 @@
+﻿<Window x:Class="richcord.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rich Presence" Height="320" Width="340">
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="220">
+            <!-- Application ID label and input -->
+            <TextBlock Text="Application ID:" Margin="0,0,0,4"/>
+            <TextBox x:Name="txtDiscordAppId" Height="23" Margin="0,0,0,10"/>
+
+            <!-- Details label and input -->
+            <TextBlock Text="Details:" Margin="0,0,0,4"/>
+            <TextBox x:Name="txtStatusDetails" Height="23" Margin="0,0,0,10"/>
+
+            <!-- State label and input -->
+            <TextBlock Text="State:" Margin="0,0,0,4"/>
+            <TextBox x:Name="txtStatusState" Height="23" Margin="0,0,0,16"/>
+
+            <!-- Button to update presence -->
+            <Button x:Name="btnSendPresence" Content="Update Presence" Height="32" Click="btnSendPresence_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
