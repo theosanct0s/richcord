@@ -1,7 +1,7 @@
 ﻿<Window x:Class="richcord.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Rich Presence" Height="320" Width="340">
+        Title="Richcord" Height="320" Width="340">
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="220">
             <!-- Application ID label and input -->
@@ -17,7 +17,10 @@
             <TextBox x:Name="txtStatusState" Height="23" Margin="0,0,0,16"/>
 
             <!-- Button to update presence -->
-            <Button x:Name="btnSendPresence" Content="Update Presence" Height="32" Click="btnSendPresence_Click"/>
+            <Button x:Name="btnSendPresence" Content="Update Presence" Height="32" Margin="0,0,0,8" Click="btnSendPresence_Click"/>
+
+            <!-- Button to test Discord connection -->
+            <Button x:Name="btnTestConnection" Content="Test Connection" Height="32" Click="btnTestConnection_Click"/>
         </StackPanel>
     </Grid>
 </Window>

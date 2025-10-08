@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using richcord.Services;
 
 namespace richcord
 {
@@ -8,33 +9,39 @@ namespace richcord
     /// </summary>
     public partial class MainWindow : Window
     {
+        // Service to handle Discord Rich Presence logic
+        private readonly DiscordPresenceService _discordService = new DiscordPresenceService();
+
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        // Handles the Discord connection test when the button is clicked
+        private void btnTestConnection_Click(object sender, RoutedEventArgs e)
+        {
+            // Grab the App ID from the input field
+            var appId = txtDiscordAppId.Text.Trim();
+
+            // Try to connect to Discord using the service
+            var connected = _discordService.TryConnect(appId);
+
+            // Show a friendly message based on the result
+            if (connected)
+            {
+                MessageBox.Show("Successfully connected to Discord!", "Connection Test", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Failed to connect. Please check your Application ID and make sure Discord is running.", "Connection Test", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
         // Handles click event for "Update Presence" button
         private void btnSendPresence_Click(object sender, RoutedEventArgs e)
         {
-            string discordAppId = txtDiscordAppId.Text.Trim();
-            string statusDetails = txtStatusDetails.Text.Trim();
-            string statusState = txtStatusState.Text.Trim();
-
-            // Simple check: ensure all fields are filled
-            if (string.IsNullOrEmpty(discordAppId) || string.IsNullOrEmpty(statusDetails) || string.IsNullOrEmpty(statusState))
-            {
-                MessageBox.Show("Please fill in Application ID, Details, and State.", "Missing Info", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Log information for development purposes
-            Console.WriteLine($"AppID: {discordAppId}, Details: {statusDetails}, State: {statusState}");
-
-            // Simulated update of Discord Rich Presence
-            MessageBox.Show("Presence updated.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            // Example for future integration:
-            // UpdateDiscordPresence(discordAppId, statusDetails, statusState);
+            // This will be implemented in the next feature!
+            MessageBox.Show("Presence update not implemented yet.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         // Prepares the Discord RPC client (future use)
