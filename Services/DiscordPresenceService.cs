@@ -1,35 +1,97 @@
+using System;
+using System.Timers;
 using DiscordRPC;
 
 namespace richcord.Services
 {
-    // Handles Discord Rich Presence connection logic
-    public class DiscordPresenceService
+    /// <summary>
+    /// Service that manages the Discord Rich Presence connection, updates, and lifecycle.
+    /// </summary>
+    public class DiscordPresenceService : IDisposable
     {
         private DiscordRpcClient _client;
+        private Timer _updateTimer;
+        private RichPresence _currentPresence;
+        private bool _isConnected;
 
-        // Attempts to connect to Discord using the provided App ID
-        public bool TryConnect(string appId)
+        /// <summary>
+        /// Connects to Discord using the provided Application ID.
+        /// Starts the update loop if successful.
+        /// </summary>
+        public bool Connect(string appId)
         {
-            // Basic validation for App ID
-            if (string.IsNullOrWhiteSpace(appId))
+            if (string.IsNullOrWhiteSpace(appId) || !ulong.TryParse(appId, out _))
                 return false;
 
-            // Dispose previous client if exists
-            _client?.Dispose();
+            Disconnect();
 
-            // Create a new Discord RPC client
             _client = new DiscordRpcClient(appId);
 
             try
             {
-                // Try to initialize the connection
-                return _client.Initialize();
+                _isConnected = _client.Initialize();
+                if (_isConnected)
+                {
+                    _updateTimer = new Timer(2000);
+                    _updateTimer.Elapsed += (s, e) => UpdatePresenceLoop();
+                    _updateTimer.Start();
+                }
+                return _isConnected;
             }
             catch
             {
-                // If anything fails, just return false
+                _isConnected = false;
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Updates the Rich Presence information shown on the user's Discord profile.
+        /// </summary>
+        public void UpdatePresence(string details, string state, string largeImageKey, string smallImageKey)
+        {
+            if (!_isConnected) return;
+
+            _currentPresence = new RichPresence
+            {
+                Details = details,
+                State = state,
+                Timestamps = Timestamps.Now,
+                Assets = new Assets
+                {
+                    LargeImageKey = largeImageKey,
+                    SmallImageKey = smallImageKey
+                }
+            };
+            _client.SetPresence(_currentPresence);
+        }
+
+        // Internal loop to keep Rich Presence updated on Discord Desktop
+        private void UpdatePresenceLoop()
+        {
+            if (_isConnected && _currentPresence != null)
+            {
+                _client.SetPresence(_currentPresence);
+            }
+        }
+
+        /// <summary>
+        /// Disconnects from Discord and releases all resources.
+        /// </summary>
+        public void Disconnect()
+        {
+            _updateTimer?.Stop();
+            _updateTimer?.Dispose();
+            _client?.Dispose();
+            _isConnected = false;
+        }
+
+        /// <summary>
+        /// Ensures all resources are released when the service is disposed.
+        /// </summary>
+        public void Dispose()
+        {
+            Disconnect();
         }
     }
 }

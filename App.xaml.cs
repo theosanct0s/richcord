@@ -9,7 +9,7 @@ using System.Windows;
 namespace richcord
 {
     /// <summary>
-    /// Interação lógica para App.xaml
+    /// Interaction logic for the Richcord application.
     /// </summary>
     public partial class App : Application
     {

@@ -5,61 +5,73 @@ using richcord.Services;
 namespace richcord
 {
     /// <summary>
-    /// Main window for the Custom Rich Presence app
+    /// Main window for the Custom Rich Presence application.
+    /// Handles user interaction and communicates with the Discord Rich Presence service.
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Service to handle Discord Rich Presence logic
+        // Service responsible for managing Discord Rich Presence connection and updates
         private readonly DiscordPresenceService _discordService = new DiscordPresenceService();
 
         public MainWindow()
         {
             InitializeComponent();
+            this.Closed += MainWindow_Closed;
         }
 
-        // Handles the Discord connection test when the button is clicked
-        private void btnTestConnection_Click(object sender, RoutedEventArgs e)
+        // Connects to Discord and activates Rich Presence when the "Connect" button is clicked
+        private void btnConnect_Click(object sender, RoutedEventArgs e)
         {
-            // Grab the App ID from the input field
-            var appId = txtDiscordAppId.Text.Trim();
+            var appId = txtAppId.Text.Trim();
 
-            // Try to connect to Discord using the service
-            var connected = _discordService.TryConnect(appId);
-
-            // Show a friendly message based on the result
-            if (connected)
+            if (_discordService.Connect(appId))
             {
-                MessageBox.Show("Successfully connected to Discord!", "Connection Test", MessageBoxButton.OK, MessageBoxImage.Information);
+                // Immediately update Rich Presence after connecting
+                var details = txtDetails.Text.Trim();
+                var state = txtState.Text.Trim();
+                var largeImageKey = txtLargeImageKey.Text.Trim();
+                var smallImageKey = txtSmallImageKey.Text.Trim();
+
+                _discordService.UpdatePresence(details, state, largeImageKey, smallImageKey);
+
+                MessageBox.Show("Successfully connected to Discord and Rich Presence is now active on your profile!", "Connection Status", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
-                MessageBox.Show("Failed to connect. Please check your Application ID and make sure Discord is running.", "Connection Test", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Failed to connect. Please check your Application ID (numbers only) and make sure Discord is running.", "Connection Status", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
-        // Handles click event for "Update Presence" button
-        private void btnSendPresence_Click(object sender, RoutedEventArgs e)
+        // Updates the Rich Presence information when the "Update Presence" button is clicked
+        private void btnUpdatePresence_Click(object sender, RoutedEventArgs e)
         {
-            // This will be implemented in the next feature!
-            MessageBox.Show("Presence update not implemented yet.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            var details = txtDetails.Text.Trim();
+            var state = txtState.Text.Trim();
+            var largeImageKey = txtLargeImageKey.Text.Trim();
+            var smallImageKey = txtSmallImageKey.Text.Trim();
+
+            try
+            {
+                _discordService.UpdatePresence(details, state, largeImageKey, smallImageKey);
+                MessageBox.Show("Rich Presence updated on Discord!", "Presence Update", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error updating presence: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        // Prepares the Discord RPC client (future use)
-        // private void SetupDiscordRpcClient()
-        // {
-        //     discordClient = new DiscordRpcClient(discordAppId);
-        //     discordClient.Initialize();
-        // }
+        // Disconnects from Discord and removes Rich Presence when the "Disconnect" button is clicked
+        private void btnDisconnect_Click(object sender, RoutedEventArgs e)
+        {
+            _discordService.Dispose();
+            MessageBox.Show("Disconnected from Discord. Rich Presence has been removed from your profile.", "Disconnected", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
 
-        // Updates Discord Rich Presence (future use)
-        // private void UpdateDiscordPresence(string appId, string details, string state)
-        // {
-        //     discordClient.SetPresence(new RichPresence
-        //     {
-        //         Details = details,
-        //         State = state,
-        //         Timestamps = Timestamps.Now
-        //     });
-        // }
+        // Ensures resources are released when the window is closed
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            _discordService.Dispose();
+        }
     }
 }
